@@ -12,13 +12,13 @@ screen = pygame.display.set_mode((500, 500))
 
 #Entity variables
 player = Player(screen)
-
+bullets = Bullets()
 
 
 #Game loop
 while running:
     player.erase()
-    player.handle_movements()
+    player.handle_movements(bullets)
     player.blit()
 
     for event in pygame.event.get():
@@ -31,11 +31,9 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             player.movements[pygame.MOUSEBUTTONDOWN] = True
     
-    for bullet in player.bullets:
-        bullet.erase()
-        bullet.move()
-        bullet.blit()
-    
+    bullets.handle_all()
+    if bullets.num_collisions(player) > 0:
+        print('HIT!')
     
     pygame.display.update()
 

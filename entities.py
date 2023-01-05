@@ -30,14 +30,11 @@ class Player():
             pygame.MOUSEBUTTONDOWN: False
         }
 
-        #Move this to its own individual class later (bullets class)
-        self.bullets = []
-
 
     def blit(self): #Draws the player rectangle
         self.screen.blit(self.player, (self.xpos, self.ypos))
 
-    def handle_movements(self):
+    def handle_movements(self, bulletsclass):
         if self.movements[pygame.K_w]:
             self.ypos -= 5
         if self.movements[pygame.K_a]:
@@ -47,18 +44,46 @@ class Player():
         if self.movements[pygame.K_d]:
             self.xpos += 5
         if self.movements[pygame.MOUSEBUTTONDOWN]:
-            x, y = pygame.mouse.get_pos()
-            self.bullets.append(Bullet(self, x, y))
+            self.shoot(bulletsclass)
             self.movements[pygame.MOUSEBUTTONDOWN] = False
+    
+    def shoot(self, bulletsclass):
+        x, y = pygame.mouse.get_pos()
+        bulletsclass.bulletlist.append(Bullet(self, x, y))
         
     def erase(self):
         eraserect = pygame.Rect(self.xpos, self.ypos, 15, 15)
         pygame.draw.rect(self.screen, (0, 0, 0), eraserect)
-
+    
+    def get_rect(self):
+        return pygame.Rect(self.xpos, self.ypos, 15, 15)
 
     
     def rotate_to_mouse(self, mousex, mousey): #Rotates player position to mouse coords
         pass
+
+
+class Bullets():
+
+    def __init__(self):
+        self.bulletlist = []
+    
+    def handle_all(self):
+        for bullet in self.bulletlist:
+            bullet.erase()
+            bullet.move()
+            bullet.blit()
+
+
+
+    def num_collisions(self, player):
+        hits = 0
+        for bullet in self.bulletlist:
+            if pygame.Rect.colliderect(bullet.get_rect(), player.get_rect()):
+                hits += 1
+        return hits
+
+
 
 
 class Bullet():
@@ -94,6 +119,8 @@ class Bullet():
     def erase(self):
         eraserect = pygame.Rect(self.xpos, self.ypos, 5, 5)
         pygame.draw.rect(self.screen, (0, 0, 0), eraserect)
-        
+    
+    def get_rect(self):
+        return pygame.Rect(self.xpos, self.ypos, 5, 5)
 
 
