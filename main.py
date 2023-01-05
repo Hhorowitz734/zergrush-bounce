@@ -17,7 +17,8 @@ player = Player(screen)
 
 #Game loop
 while running:
-
+    player.erase()
+    player.handle_movements()
     player.blit()
 
     for event in pygame.event.get():
@@ -27,8 +28,14 @@ while running:
             player.movements[event.key] = True
         if event.type == pygame.KEYUP:
             player.movements[event.key] = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            player.movements[pygame.MOUSEBUTTONDOWN] = True
     
-    player.handle_movements()
+    for bullet in player.bullets:
+        bullet.erase()
+        bullet.move()
+        bullet.blit()
+    
     
     pygame.display.update()
 

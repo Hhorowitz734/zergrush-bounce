@@ -1,6 +1,6 @@
 #Importing modules
 import pygame
-import time
+from random import randint
 import math
 
 class Player():
@@ -30,15 +30,14 @@ class Player():
             pygame.MOUSEBUTTONDOWN: False
         }
 
+        #Move this to its own individual class later (bullets class)
+        self.bullets = []
 
 
     def blit(self): #Draws the player rectangle
         self.screen.blit(self.player, (self.xpos, self.ypos))
 
     def handle_movements(self):
-        erasex = self.xpos
-        erasey = self.ypos
-
         if self.movements[pygame.K_w]:
             self.ypos -= 5
         if self.movements[pygame.K_a]:
@@ -48,15 +47,53 @@ class Player():
         if self.movements[pygame.K_d]:
             self.xpos += 5
         if self.movements[pygame.MOUSEBUTTONDOWN]:
-            print('Insert shooting logic here') #Insert shooting logic here
+            x, y = pygame.mouse.get_pos()
+            self.bullets.append(Bullet(self, x, y))
+            self.movements[pygame.MOUSEBUTTONDOWN] = False
         
-    def erase(erasex, erasey):
-        pass #Create a rect in the shape of the player, and then blit it in black on the screen
+    def erase(self):
+        eraserect = pygame.Rect(self.xpos, self.ypos, 15, 15)
+        pygame.draw.rect(self.screen, (0, 0, 0), eraserect)
 
 
     
     def rotate_to_mouse(self, mousex, mousey): #Rotates player position to mouse coords
         pass
 
+
+class Bullet():
+
+    def __init__(self, player, targetx, targety):
+        #Change these later to reflect direction
+        self.xpos = player.xpos + 8
+        self.ypos = player.ypos + 8
+        self.screen = player.screen
+
+        self.angle = math.atan2(targety - player.ypos, targetx - player.xpos)
+        
+        self.dx = math.cos(self.angle) * 10 + (randint(-1, 1) / 5)
+        self.dy = math.sin(self.angle) * 10 + (randint(-1, 1) / 5)
+
+        self.screen_width, self.screen_height = self.screen.get_size()
+
+        #Change these later to real bullet image
+        bulletImgLoad = pygame.image.load("player.png")
+        self.bullet = pygame.transform.scale(bulletImgLoad, (5, 5))
+    
+    def move(self):
+        self.xpos += self.dx
+        self.ypos += self.dy
+        if self.xpos < 0 or self.xpos >= self.screen_width:
+            self.dx = -self.dx
+        if self.ypos < 0 or self.ypos >= self.screen_height:
+            self.dy = -self.dy
+    
+    def blit(self):
+        self.screen.blit(self.bullet, (self.xpos, self.ypos))
+    
+    def erase(self):
+        eraserect = pygame.Rect(self.xpos, self.ypos, 5, 5)
+        pygame.draw.rect(self.screen, (0, 0, 0), eraserect)
+        
 
 
