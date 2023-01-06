@@ -1,6 +1,6 @@
 #Importing modules
 import pygame
-from random import randint
+from random import randint, choice
 import math
 
 class Player():
@@ -50,6 +50,15 @@ class Player():
         if self.movements[pygame.MOUSEBUTTONDOWN]:
             self.shoot(bulletsclass)
             self.movements[pygame.MOUSEBUTTONDOWN] = False
+        if self.xpos > 485:
+            self.xpos = 485
+        if self.xpos < 0:
+            self.xpos = 0
+        if self.ypos > 485:
+            self.ypos = 485
+        if self.ypos < 0:
+            self.ypos = 0
+        
     
     def shoot(self, bulletsclass):
         x, y = pygame.mouse.get_pos()
@@ -133,3 +142,82 @@ class Bullet():
         return pygame.Rect(self.xpos, self.ypos, 5, 5)
 
 
+
+class Zergs():
+
+    def __init__(self, player, screen):
+        self.zerglist = []
+        self.player = player
+        self.screen = screen
+        self.cnum = 10
+        self.zergspeed = 1
+
+    def handle_all(self):
+        for zerg in self.zerglist:
+            zerg.erase()
+            zerg.move()
+        for zerg in self.zerglist:   
+            zerg.blit()
+        if not self.zerglist:
+            self.cnum += 5
+            self.zergspeed += .1
+            self.generate(self.cnum)
+    
+    def generate(self, num):
+        self.zerglist = [Zerg(self.player, self.screen, self.zergspeed) for n in range(num)]
+    
+    def kill_check(self, bullets):
+        for bullet in bullets.bulletlist:
+            for zerg in self.zerglist:
+                if pygame.Rect.colliderect(zerg.get_rect(), bullet.get_rect()):
+                    zerg.erase()
+                if pygame.Rect.colliderect(zerg.get_rect(), self.player.get_rect()):
+                    pygame.quit() #Implement logic to move to dead screen here
+            self.zerglist = [zerg for zerg in self.zerglist if not pygame.Rect.colliderect(zerg.get_rect(), bullet.get_rect())]
+
+
+
+class Zerg():
+
+    def __init__(self, player, screen, speed):
+        self.screen = screen
+        whichside = randint(0, 3)
+        if whichside == 0:  # Top of the screen
+            self.xpos = randint(0, 500)
+            self.ypos = -50
+        elif whichside == 1:  # Right side of the screen
+            self.xpos = 550
+            self.ypos = randint(0, 500)
+        elif whichside == 2:  # Bottom of the screen
+            self.xpos = randint(0, 500)
+            self.ypos = 550
+        else:  # Left side of the screen
+            self.xpos = -50
+            self.ypos = randint(0, 500)
+        self.color = (randint(0, 255), randint(0, 255), randint(0, 255))
+        self.player = player
+        self.zerg_hitbox = pygame.Rect(self.xpos, self.ypos, 20, 20) 
+        self.speed = speed
+    
+    def blit(self):
+        pygame.draw.circle(self.screen, self.color, (self.xpos, self.ypos), 6)
+    
+    def erase(self):
+        rect_x = self.xpos - 7
+        rect_y = self.ypos - 7
+        rect_width = 14
+        rect_height = 14
+        pygame.draw.rect(self.screen, (0,0,0), (rect_x, rect_y, rect_width, rect_height), 0)
+    
+    def move(self):
+        self.angle = math.atan2(self.player.ypos - self.ypos, self.player.xpos - self.xpos)
+        
+        dx = math.cos(self.angle) * self.speed
+        dy = math.sin(self.angle) * self.speed
+
+        self.xpos += dx
+        self.ypos += dy
+    
+    def get_rect(self):
+        return pygame.Rect(self.xpos, self.ypos, 14, 14)
+    

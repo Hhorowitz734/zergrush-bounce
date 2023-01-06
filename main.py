@@ -13,6 +13,8 @@ screen = pygame.display.set_mode((500, 500))
 #Entity variables
 player = Player(screen)
 bullets = Bullets()
+zergs = Zergs(player, screen)
+zergs.generate(10)
 
 frame = -1
 
@@ -26,7 +28,7 @@ while running:
         frame = 0
     if frame != -1:
         player.blit(True)
-        player.speed = 2
+        player.speed = 1.5
         frame += 1
     if frame == 20:
         frame = -1
@@ -44,9 +46,9 @@ while running:
             player.movements[pygame.MOUSEBUTTONDOWN] = True
     
     bullets.handle_all()
-    if bullets.num_collisions(player) > 0:
-        print('HIT!')
-    
+
+    zergs.handle_all()
+    zergs.kill_check(bullets)
     pygame.display.update()
 
 pygame.quit()
