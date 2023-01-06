@@ -14,6 +14,7 @@ class Player():
 
         #Game attributes
         self.lives = lives
+        self.speed = 5
         self.screen = screen 
 
         #Positional and rotational attributes
@@ -31,18 +32,21 @@ class Player():
         }
 
 
-    def blit(self): #Draws the player rectangle
+    def blit(self, hurt = False): #Draws the player rectangle
         self.screen.blit(self.player, (self.xpos, self.ypos))
+        if hurt:
+            eraserect = pygame.Rect(self.xpos, self.ypos, 15, 15)
+            pygame.draw.rect(self.screen, (255, 0, 0), eraserect)
 
     def handle_movements(self, bulletsclass):
         if self.movements[pygame.K_w]:
-            self.ypos -= 5
+            self.ypos -= self.speed
         if self.movements[pygame.K_a]:
-            self.xpos -= 5
+            self.xpos -= self.speed
         if self.movements[pygame.K_s]:
-            self.ypos += 5
+            self.ypos += self.speed
         if self.movements[pygame.K_d]:
-            self.xpos += 5
+            self.xpos += self.speed
         if self.movements[pygame.MOUSEBUTTONDOWN]:
             self.shoot(bulletsclass)
             self.movements[pygame.MOUSEBUTTONDOWN] = False
@@ -59,8 +63,12 @@ class Player():
         return pygame.Rect(self.xpos, self.ypos, 15, 15)
 
     
-    def rotate_to_mouse(self, mousex, mousey): #Rotates player position to mouse coords
-        pass
+    def hit_by_bullet(self, hits):
+        self.lives -= hits #Later take away a heart icon from top of screen
+        if hits > 0:
+            return True #We will implement logic for this in the main file
+        return False
+        
 
 
 class Bullets():
@@ -81,7 +89,8 @@ class Bullets():
         for bullet in self.bulletlist:
             if pygame.Rect.colliderect(bullet.get_rect(), player.get_rect()):
                 hits += 1
-        return hits
+        x = player.hit_by_bullet(hits)
+        return x
 
 
 

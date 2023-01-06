@@ -14,12 +14,24 @@ screen = pygame.display.set_mode((500, 500))
 player = Player(screen)
 bullets = Bullets()
 
+frame = -1
+
 
 #Game loop
 while running:
     player.erase()
     player.handle_movements(bullets)
     player.blit()
+    if bullets.num_collisions(player):
+        frame = 0
+    if frame != -1:
+        player.blit(True)
+        player.speed = 2
+        frame += 1
+    if frame == 20:
+        frame = -1
+        player.speed = 5
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
