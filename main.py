@@ -11,7 +11,7 @@ running = True
 screen = pygame.display.set_mode((500, 500))
 
 #Entity variables
-player = Player(screen)
+player = Player(screen, 15)
 bullets = Bullets()
 zergs = Zergs(player, screen)
 zergs.generate(10)
@@ -26,13 +26,16 @@ while running:
     player.blit()
     if bullets.num_collisions(player):
         frame = 0
-    if frame != -1:
+    if frame != -1 and frame < 20:
         player.blit(True)
         player.speed = 1.5
         frame += 1
     if frame == 20:
-        frame = -1
         player.speed = 5
+    if frame % 5 == 0 and player.lives < player.max_lives:
+        player.lives += .01
+    if frame > 20 and player.lives == player.max_lives:
+        frame = -1
 
 
     for event in pygame.event.get():

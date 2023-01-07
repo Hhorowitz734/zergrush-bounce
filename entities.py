@@ -14,8 +14,9 @@ class Player():
 
         #Game attributes
         self.lives = lives
+        self.max_lives = lives
         self.speed = 5
-        self.screen = screen 
+        self.screen = screen
 
         #Positional and rotational attributes
         self.xpos = screen.get_width() / 2
@@ -32,8 +33,13 @@ class Player():
         }
 
 
+
     def blit(self, hurt = False): #Draws the player rectangle
         self.screen.blit(self.player, (self.xpos, self.ypos))
+        green_hp_size = (self.lives / self.max_lives) * 15
+        rect_x, rect_y = self.xpos, self.ypos - 5
+        self.healthbar = pygame.Rect(rect_x, rect_y, green_hp_size, 3)
+        pygame.draw.rect(self.screen, (0, 255, 0), self.healthbar)
         if hurt:
             eraserect = pygame.Rect(self.xpos, self.ypos, 15, 15)
             pygame.draw.rect(self.screen, (255, 0, 0), eraserect)
@@ -65,15 +71,18 @@ class Player():
         bulletsclass.bulletlist.append(Bullet(self, x, y))
         
     def erase(self):
-        eraserect = pygame.Rect(self.xpos, self.ypos, 15, 15)
+        
+        eraserect = pygame.Rect(self.xpos, self.ypos - 5, 15, 18)
+        eraserect2 = pygame.Rect(self.xpos, self.ypos, 15, 15)
         pygame.draw.rect(self.screen, (0, 0, 0), eraserect)
+        pygame.draw.rect(self.screen, (0, 0, 0), eraserect2)
     
     def get_rect(self):
         return pygame.Rect(self.xpos, self.ypos, 15, 15)
 
     
     def hit_by_bullet(self, hits):
-        self.lives -= hits #Later take away a heart icon from top of screen
+        self.lives -= hits * .3 #Later take away a heart icon from top of screen
         if hits > 0:
             return True #We will implement logic for this in the main file
         return False
@@ -151,6 +160,7 @@ class Zergs():
         self.screen = screen
         self.cnum = 10
         self.zergspeed = 1
+        self.wave = 0
 
     def handle_all(self):
         for zerg in self.zerglist:
@@ -160,10 +170,12 @@ class Zergs():
             zerg.blit()
         if not self.zerglist:
             self.cnum += 5
-            self.zergspeed += .1
+            self.zergspeed += .05
             self.generate(self.cnum)
     
     def generate(self, num):
+        self.wave += 1
+        print(self.wave)
         self.zerglist = [Zerg(self.player, self.screen, self.zergspeed) for n in range(num)]
     
     def kill_check(self, bullets):
